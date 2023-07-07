@@ -34,6 +34,7 @@ export const requestForToken = () => {
             if (currentToken) {
                 console.log('current token for client: ', currentToken);
                 // Perform any other neccessary action with the token
+                sendTokenToFirebase(currentToken);
             } else {
                 // Show permission request UI
                 console.log('No registration token available. Request permission to generate one.');
@@ -52,4 +53,37 @@ export const onMessageListener = () =>
         });
     });
 
+const sendTokenToFirebase = (token) => {
+    // Make an API call to Firebase to save the token
+    // Example using fetch:
+    fetch('https://fcm.googleapis.com/v1/projects/navigationapp-rn/messages:send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer AAAAibKeRBQ:APA91bF5SSR8R43jYopv6rDhLc0WcN5EylDhsK5aVdZR54s6mIbON03W7eCmoLslGFadD-O3CVStfa0Cv98RUKAyajJ3ryl9IkEjPCnm50K_X9ugNeGImBkuQ2jBs1Ek4wcc1gQjcgyc',
+        },
+        body: JSON.stringify(
+            {
+                "message": {
+                    "token": token,
+                    "notification": {
+                        "title": "Background Message Title",
+                        "body": "Background message body"
+                    },
+                }
+            }
+        ),
+    })
+        .then((response) => {
+            console.log("res==", response.ok)
+            if (response.ok) {
+                console.log('Token sent to Firebase successfully.');
+            } else {
+                console.log('Failed to send token to Firebase.');
+            }
+        })
+        .catch((error) => {
+            console.log('An error occurred while sending token to Firebase.', error);
+        });
+};
 
